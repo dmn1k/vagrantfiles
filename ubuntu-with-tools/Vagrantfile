@@ -1,0 +1,37 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+ config.vm.box = "bento/ubuntu-16.10"
+ 
+ config.vm.synced_folder "D:\\vagrant\\images\\shared", "/vagrant_data"
+
+ config.vm.provider "virtualbox" do |vb|
+    vb.name = "Ubuntu work"
+
+  
+    vb.memory = "8096"
+    vb.cpus = "2"
+    vb.customize ["modifyvm", :id, "--vram", "96"]
+    vb.customize ["modifyvm", :id, "--pae", "on"]
+    vb.customize ["modifyvm", :id, '--audio', 'dsound', '--audiocontroller', 'ac97']
+ end
+
+ config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get -y update
+    sudo apt-get -y install xfce4 virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
+
+    sudo apt-get -y install gdm
+    sudo dpkg-reconfigure gdm
+
+    git clone https://github.com/dmn1k/system-setup.git
+
+    cd system-setup
+
+    ./install.sh
+
+    sudo localectl set-keymap de
+
+    sudo reboot
+SHELL
+end
